@@ -5,7 +5,7 @@ import pandas as pd # Import pandas for handling Excel/CSV files
 # Set page configuration for better aesthetics and responsiveness
 st.set_page_config(
     page_title="GreenImpact: Carbon & ESG Tool",
-    page_icon="🌿",
+    page_icon="�",
     layout="centered",
     initial_sidebar_state="auto"
 )
@@ -34,7 +34,7 @@ def calculate_carbon_footprint(electricity_kwh, car_km, flights_hours, waste_kg,
     clothing_emission = clothing_items_month * 10
     streaming_emission = (streaming_hours_day * 30) * 0.05 # Convert daily to monthly, then by factor
 
-    total_emission = (electricity_emission + car_emission + flights_emission + 
+    total_emission = (electricity_emission + car_emission + flights_hours + 
                       waste_emission + meat_emission + clothing_emission + streaming_emission)
     return total_emission
 
@@ -217,38 +217,107 @@ with st.expander("Recent Headlines (Simulated)"):
 st.markdown("---")
 
 # Excel Based Calculator / Data Integration Section
-st.header("📊 Data & Tool Integration (Excel Upload)")
+st.header("📊 Data & Tool Integration")
 st.markdown(
     """
-    You can upload an Excel file here to view its contents. For an NGO, this feature could be used
-    to process existing datasets, perform more complex calculations, or integrate with external tools.
+    Here, you can either upload an Excel file for general data viewing or
+    select a pre-configured GHG Protocol tool for specific calculations.
     """
 )
 
-uploaded_file = st.file_uploader("Upload an Excel File (.xlsx)", type=["xlsx"])
+# Option to select between Excel Upload or GHG Protocol Tools
+tool_option = st.radio(
+    "Choose an option:",
+    ("Upload Excel File", "Use GHG Protocol Tool (Placeholder)"),
+    key="tool_option_selector"
+)
 
-if uploaded_file is not None:
-    try:
-        # Read the Excel file into a pandas DataFrame
-        df = pd.read_excel(uploaded_file)
-        st.success("File uploaded successfully! Here's a preview:")
-        st.dataframe(df)
+if tool_option == "Upload Excel File":
+    uploaded_file = st.file_uploader("Upload an Excel File (.xlsx)", type=["xlsx"])
 
-        st.markdown("---")
-        st.subheader("Next Steps for Uploaded Data:")
+    if uploaded_file is not None:
+        try:
+            # Read the Excel file into a pandas DataFrame
+            df = pd.read_excel(uploaded_file)
+            st.success("File uploaded successfully! Here's a preview:")
+            st.dataframe(df)
+
+            st.markdown("---")
+            st.subheader("Next Steps for Uploaded Data:")
+            st.markdown(
+                """
+                * **Data Analysis:** You could perform various analyses on this data using Python's data science libraries (like pandas).
+                * **Custom Calculators:** The data from your Excel file could feed into more specific, custom calculators built directly into this app.
+                * **Reporting:** Generate reports or visualizations based on the uploaded data for your NGO's stakeholders.
+                * **Integration:** For complex Excel formulas, consider translating them into Python code within this Streamlit app for direct execution.
+                """
+            )
+        except Exception as e:
+            st.error(f"Error reading the Excel file: {e}")
+            st.info("Please ensure it's a valid .xlsx file and not corrupted.")
+    else:
+        st.info("Upload an Excel file to see its contents here.")
+
+elif tool_option == "Use GHG Protocol Tool (Placeholder)":
+    st.markdown("---")
+    st.subheader("GHG Protocol Tools (Placeholder)")
+    st.markdown(
+        """
+        *(Note: These are placeholders. In a full implementation, the logic from these GHG Protocol
+        Excel tools would be translated into Python code and integrated directly into this app.)*
+        """
+    )
+
+    ghg_tool_selection = st.selectbox(
+        "Select a GHG Protocol Tool:",
+        ["Select a tool...", 
+         "GHG Protocol Tool 1: Scope 1 Emissions (Direct)", 
+         "GHG Protocol Tool 2: Scope 2 Emissions (Indirect from Electricity)", 
+         "GHG Protocol Tool 3: Scope 3 Emissions (Value Chain) - Categories (e.g., Business Travel)"],
+        key="ghg_tool_selector"
+    )
+
+    if ghg_tool_selection == "GHG Protocol Tool 1: Scope 1 Emissions (Direct)":
         st.markdown(
             """
-            * **Data Analysis:** You could perform various analyses on this data using Python's data science libraries (like pandas).
-            * **Custom Calculators:** The data from your Excel file could feed into more specific, custom calculators built directly into this app.
-            * **Reporting:** Generate reports or visualizations based on the uploaded data for your NGO's stakeholders.
-            * **Integration:** For complex Excel formulas, consider translating them into Python code within this Streamlit app for direct execution.
+            **GHG Protocol Tool 1: Scope 1 Emissions (Direct)**
+            This section would contain inputs and calculations for direct emissions from
+            sources owned or controlled by your organization (e.g., fuel combustion in company vehicles,
+            emissions from manufacturing processes).
+            
+            *Example inputs: Fuel type, quantity consumed, vehicle type.*
             """
         )
-    except Exception as e:
-        st.error(f"Error reading the Excel file: {e}")
-        st.info("Please ensure it's a valid .xlsx file and not corrupted.")
-else:
-    st.info("Upload an Excel file to see its contents here.")
+        st.info("Coming soon: Interactive calculator for Scope 1 emissions!")
+    elif ghg_tool_selection == "GHG Protocol Tool 2: Scope 2 Emissions (Indirect from Electricity)":
+        st.markdown(
+            """
+            **GHG Protocol Tool 2: Scope 2 Emissions (Indirect from Electricity)**
+            This section would focus on indirect emissions from the generation of purchased electricity,
+            steam, heating, and cooling consumed by your organization.
+            
+            *Example inputs: Purchased electricity (kWh), location (grid emission factor).*
+            """
+        )
+        st.info("Coming soon: Interactive calculator for Scope 2 emissions!")
+    elif ghg_tool_selection == "GHG Protocol Tool 3: Scope 3 Emissions (Value Chain) - Categories (e.g., Business Travel)":
+        st.markdown(
+            """
+            **GHG Protocol Tool 3: Scope 3 Emissions (Value Chain) - Categories**
+            This tool would cover various categories of indirect emissions that occur in the value chain
+            of the reporting company, both upstream and downstream. This could include:
+            * Business travel
+            * Employee commuting
+            * Waste generated in operations
+            * Purchased goods and services
+            
+            *Example inputs for Business Travel: Travel distance, mode of transport (air, rail, car).*
+            """
+        )
+        st.info("Coming soon: Interactive calculator for specific Scope 3 categories!")
+    elif ghg_tool_selection == "Select a tool...":
+        st.info("Please select a GHG Protocol tool from the dropdown above to see its description.")
+        
 
 st.markdown("---")
 st.markdown(
