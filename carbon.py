@@ -1,5 +1,5 @@
 import streamlit as st
-import pandas as pd # Import pandas for handling Excel/CSV files
+import pandas as pd # Import pandas for handling Excel/CSV files - kept for now, but not strictly used for direct file upload in this version
 
 # --- Configuration ---
 # Set page configuration for better aesthetics and responsiveness
@@ -12,7 +12,7 @@ st.set_page_config(
 
 # --- Helper Functions (for calculations) ---
 def calculate_carbon_footprint(electricity_kwh, car_km, flights_hours, waste_kg, 
-                                meat_servings_week, clothing_items_month, streaming_hours_day):
+                                 meat_servings_week, clothing_items_month, streaming_hours_day):
     """
     Calculates an estimated carbon footprint based on user inputs.
     Conversion factors are simplified for demonstration.
@@ -23,16 +23,23 @@ def calculate_carbon_footprint(electricity_kwh, car_km, flights_hours, waste_kg,
     - Meat: 5 kg CO2e/serving (simplified for red meat)
     - Clothing: 10 kg CO2e/item (simplified for new purchases)
     - Streaming: 0.05 kg CO2e/hour (simplified, data center energy)
+    
+    All calculations are adjusted to be on a monthly basis for consistency with output.
     """
     electricity_emission = electricity_kwh * 0.8
     car_emission = car_km * 0.2
-    flights_emission = flights_hours * 90
+    
+    # FIX: Convert annual flights_hours to monthly by dividing by 12
+    # The slider collects annual hours, but the output is monthly.
+    monthly_flights_hours = flights_hours / 12
+    flights_emission = monthly_flights_hours * 90 
+    
     waste_emission = waste_kg * 0.5
     
     # New calculations for advanced features
-    meat_emission = (meat_servings_week * 4) * 5 # Convert weekly to monthly, then by factor
+    meat_emission = (meat_servings_week * 4) * 5 # Convert weekly to monthly (approx 4 weeks/month), then by factor
     clothing_emission = clothing_items_month * 10
-    streaming_emission = (streaming_hours_day * 30) * 0.05 # Convert daily to monthly, then by factor
+    streaming_emission = (streaming_hours_day * 30) * 0.05 # Convert daily to monthly (approx 30 days/month), then by factor
 
     total_emission = (electricity_emission + car_emission + flights_emission + 
                       waste_emission + meat_emission + clothing_emission + streaming_emission)
@@ -85,7 +92,7 @@ with st.expander("Estimate Your Carbon Footprint"):
         "Annual Flight Hours (total for all flights)", 
         0, 100, 5, 1, 
         key="flights_hours_slider", # Added key
-        help="Total hours spent flying in a year. Divide by 12 for monthly average if needed."
+        help="Total hours spent flying in a year. This will be converted to a monthly average for calculation."
     )
     waste_kg = st.slider(
         "Monthly Waste Generated (kg)", 
@@ -140,7 +147,7 @@ with st.expander("Estimate Your Carbon Footprint"):
             st.write("- **Electricity:** Consider switching to LED lights, unplugging electronics when not in use, and exploring renewable energy options for your home/office.")
         if car_km > 200:
             st.write("- **Transportation:** Opt for public transport, cycling, walking, or carpooling more often. Regular vehicle maintenance also helps!")
-        if flights_hours > 0:
+        if flights_hours / 12 * 90 > 50: # Check the *monthly* impact of flights for recommendations
             st.write("- **Flights:** For unavoidable travel, consider carbon offsetting programs. Explore virtual meetings or train travel as alternatives where possible.")
         if waste_kg > 5:
             st.write("- **Waste:** Focus on the 'Reduce, Reuse, Recycle' hierarchy. Compost organic waste, buy products with minimal packaging, and avoid single-use items.")
@@ -171,7 +178,7 @@ with st.expander("Carbon Pricing Mechanisms"):
         A **carbon tax** directly prices carbon emissions, making polluting activities
         more expensive. Governments set a price per tonne of carbon dioxide (or CO2e) emitted.
         * **Implication for NGOs:** Can advocate for the implementation or increase of carbon taxes
-            to incentivize greener practices and generate revenue for climate initiatives.
+          to incentivize greener practices and generate revenue for climate initiatives.
         """
     )
     st.subheader("Cap-and-Trade Systems (Emissions Trading Schemes - ETS)")
@@ -181,7 +188,7 @@ with st.expander("Carbon Pricing Mechanisms"):
         allowances (permits to emit) up to that cap. Companies can buy and sell these allowances
         (trade), creating a market price for carbon.
         * **Implication for NGOs:** Can monitor the effectiveness of ETS, advocate for stricter
-            caps, and help develop projects that generate carbon credits under such systems.
+          caps, and help develop projects that generate carbon credits under such systems.
         """
     )
 
@@ -201,7 +208,7 @@ with st.expander("Sectors/Activities Eligible for Carbon Credits"):
         * **Energy Efficiency Projects:** Improving industrial processes, commercial/residential buildings.
         * **Waste Management:** Capturing methane from landfills, composting, waste-to-energy.
         * **Forestry and Land Use (Nature-Based Solutions):** Reforestation, afforestation, avoided deforestation (REDD+),
-            sustainable land management, blue carbon initiatives (mangroves, seagrass).
+          sustainable land management, blue carbon initiatives (mangroves, seagrass).
         * **Agriculture:** Improved agricultural practices that sequester carbon or reduce N2O/CH4 emissions.
         * **Industrial Process Improvements:** Reducing emissions from chemical production, cement, etc.
         * **Carbon Capture, Utilization, and Storage (CCUS):** Emerging technologies to capture CO2 from industrial sources or atmosphere.
@@ -242,9 +249,9 @@ with st.expander("What is ESG?"):
         This category relates to the impact an organization has on the natural environment.
         Your carbon footprint falls directly into this 'E' pillar.
         * **Examples:** Climate change strategies, resource depletion (water, energy), pollution (air, water, land),
-            biodiversity, deforestation.
+          biodiversity, deforestation.
         * **Connection for NGOs:** Advocating for environmental protection, promoting sustainable resource use,
-            and working on climate resilience projects directly addresses the 'E' pillar.
+          and working on climate resilience projects directly addresses the 'E' pillar.
         """
     )
     st.markdown("---")
@@ -254,9 +261,9 @@ with st.expander("What is ESG?"):
         This focuses on how an organization manages relationships with its employees, suppliers,
         customers, and the communities where it operates.
         * **Examples:** Labor practices, diversity and inclusion, human rights, community engagement,
-            customer privacy, health and safety.
+          customer privacy, health and safety.
         * **Connection for NGOs:** Directly aligns with NGOs focused on human rights, community development,
-            social justice, and fair labor practices. Advocating for corporate social responsibility.
+          social justice, and fair labor practices. Advocating for corporate social responsibility.
         """
     )
     st.markdown("---")
@@ -266,9 +273,9 @@ with st.expander("What is ESG?"):
         This deals with an organization's leadership, executive pay, audits, internal controls,
         and shareholder rights. It ensures ethical and responsible decision-making.
         * **Examples:** Board diversity, executive compensation, anti-corruption policies,
-            transparency, lobbying, political contributions.
+          transparency, lobbying, political contributions.
         * **Connection for NGOs:** Promoting transparency, ethical leadership, and accountability
-            in corporations and government, which underpins effective environmental and social initiatives.
+          in corporations and government, which underpins effective environmental and social initiatives.
         """
         )
 
@@ -290,54 +297,54 @@ with st.expander("Key Indian ESG-Related Laws & Initiatives"):
         """
         * **Mandated by SEBI (Securities and Exchange Board of India):** Replaced the Business Responsibility Report (BRR).
         * **Purpose:** Requires the top 1000 listed companies (by market capitalization) to disclose their ESG performance
-            against specific parameters and principles.
+          against specific parameters and principles.
         * **Relevance for NGOs:** NGOs can leverage BRSR data for corporate engagement, research, and advocacy
-            to encourage greater sustainability and accountability.
+          to encourage greater sustainability and accountability.
         """
     )
     st.subheader("Companies (CSR Policy) Rules, 2014 (and amendments)")
     st.write(
         """
         * **Mandatory CSR:** Requires companies meeting certain profit/turnover/net worth criteria to spend 2% of their
-            average net profits of the preceding three years on Corporate Social Responsibility (CSR) activities.
+          average net profits of the preceding three years on Corporate Social Responsibility (CSR) activities.
         * **Relevance for NGOs:** This is a direct funding mechanism and partnership opportunity for NGOs, as companies
-            often partner with NGOs to implement their CSR initiatives in areas like education, health, and environmental protection.
+          often partner with NGOs to implement their CSR initiatives in areas like education, health, and environmental protection.
         """
     )
     st.subheader("Environmental Protection Act, 1986 & Rules")
     st.write(
         """
         * **Broad Framework:** A comprehensive law for the protection and improvement of the environment.
-            It provides for the regulation of environmental pollution, hazardous substances, and environmental clearances.
+          It provides for the regulation of environmental pollution, hazardous substances, and environmental clearances.
         * **Relevance for NGOs:** Used by environmental NGOs for litigation, advocacy against pollution,
-            and promoting adherence to environmental standards.
+          and promoting adherence to environmental standards.
         """
     )
     st.subheader("Water (Prevention and Control of Pollution) Act, 1974 & Air (Prevention and Control of Pollution) Act, 1981")
     st.write(
         """
         * **Sector-Specific:** These acts deal with the prevention, control, and abatement of water and air pollution,
-            respectively, establishing pollution control boards.
+          respectively, establishing pollution control boards.
         * **Relevance for NGOs:** Crucial for NGOs working on water quality, air quality, and public health issues,
-            enabling them to engage with regulatory bodies and industry.
+          enabling them to engage with regulatory bodies and industry.
         """
     )
     st.subheader("National Green Tribunal Act, 2010")
     st.write(
         """
         * **Specialized Tribunal:** Established a specialized judicial body for effective and expeditious disposal of
-            cases relating to environmental protection and conservation of forests and other natural resources.
+          cases relating to environmental protection and conservation of forests and other natural resources.
         * **Relevance for NGOs:** Provides a fast-track legal recourse for environmental grievances and violations,
-            often utilized by environmental NGOs.
+          often utilized by environmental NGOs.
         """
     )
     st.subheader("India's Climate Commitments (NDCs, Net-Zero Target)")
     st.write(
         """
         * **International Agreements:** India's Nationally Determined Contributions (NDCs) under the Paris Agreement
-            and its commitment to achieve Net-Zero emissions by 2070.
+          and its commitment to achieve Net-Zero emissions by 2070.
         * **Relevance for NGOs:** NGOs play a vital role in monitoring progress, advocating for more ambitious targets,
-            and implementing ground-level projects that contribute to climate goals.
+          and implementing ground-level projects that contribute to climate goals.
         """
     )
 
@@ -363,111 +370,68 @@ with st.expander("Recent Headlines (Simulated)"):
     
 st.markdown("---")
 
-# Excel Based Calculator / Data Integration Section (retained)
-st.header("📊 Data & Tool Integration")
+# GHG Protocol Tools (No longer includes Excel upload option)
+st.header("📊 GHG Protocol Tool (Placeholder)")
 st.markdown(
     """
-    This section allows you to either upload general data for analysis or
-    interact with placeholders for GHG Protocol-based calculation tools.
+    This section provides placeholders for GHG Protocol-based calculation tools.
+    *(Note: These are placeholders. In a full implementation, the logic from these GHG Protocol
+    Excel tools would be translated into Python code and integrated directly into this app,
+    allowing for specific calculations relevant to organizational emissions.)*
     """
 )
 
-# Option to select between Excel Upload or GHG Protocol Tools
-tool_option = st.radio(
-    "Choose an option:",
-    ("Upload Excel File", "Use GHG Protocol Tool (Placeholder)"),
-    key="tool_option_selector"
+ghg_tool_selection = st.selectbox(
+    "Select a GHG Protocol Tool:",
+    ["Select a tool...", 
+     "GHG Protocol Tool 1: Scope 1 Emissions (Direct)", 
+     "GHG Protocol Tool 2: Scope 2 Emissions (Indirect from Electricity)", 
+     "GHG Protocol Tool 3: Scope 3 Emissions (Value Chain) - Categories (e.g., Business Travel)"],
+    key="ghg_tool_selector"
 )
 
-if tool_option == "Upload Excel File":
-    uploaded_file = st.file_uploader("Upload an Excel File (.xlsx)", type=["xlsx"])
-
-    if uploaded_file is not None:
-        try:
-            # Read the Excel file into a pandas DataFrame
-            df = pd.read_excel(uploaded_file)
-            st.success("File uploaded successfully! Here's a preview:")
-            st.dataframe(df)
-
-            st.markdown("---")
-            st.subheader("Next Steps for Uploaded Data:")
-            st.markdown(
-                """
-                * **Data Analysis:** Perform various analyses on this data using Python's data science libraries (like pandas).
-                * **Custom Calculators:** The data from your Excel file could feed into more specific, custom calculators built directly into this app.
-                * **Reporting:** Generate reports or visualizations based on the uploaded data for your NGO's stakeholders.
-                * **Integration:** For complex Excel formulas, consider translating them into Python code within this Streamlit app for direct execution.
-                """
-            )
-        except Exception as e:
-            st.error(f"Error reading the Excel file: {e}")
-            st.info("Please ensure it's a valid .xlsx file and not corrupted.")
-    else:
-        st.info("Upload an Excel file to see its contents here.")
-
-elif tool_option == "Use GHG Protocol Tool (Placeholder)":
-    st.markdown("---")
-    st.subheader("GHG Protocol Tools (Placeholder)")
+if ghg_tool_selection == "GHG Protocol Tool 1: Scope 1 Emissions (Direct)":
     st.markdown(
         """
-        *(Note: These are placeholders. In a full implementation, the logic from these GHG Protocol
-        Excel tools would be translated into Python code and integrated directly into this app,
-        allowing for specific calculations relevant to organizational emissions.)*
+        **GHG Protocol Tool 1: Scope 1 Emissions (Direct)**
+        This section would contain inputs and calculations for direct emissions from
+        sources owned or controlled by your organization (e.g., fuel combustion in company vehicles,
+        emissions from manufacturing processes). This is critical for an NGO managing its own facilities or fleet.
+        
+        *Example inputs: Fuel type, quantity consumed, vehicle type, refrigerant leaks.*
         """
     )
-
-    ghg_tool_selection = st.selectbox(
-        "Select a GHG Protocol Tool:",
-        ["Select a tool...", 
-         "GHG Protocol Tool 1: Scope 1 Emissions (Direct)", 
-         "GHG Protocol Tool 2: Scope 2 Emissions (Indirect from Electricity)", 
-         "GHG Protocol Tool 3: Scope 3 Emissions (Value Chain) - Categories (e.g., Business Travel)"],
-        key="ghg_tool_selector"
-    )
-
-    if ghg_tool_selection == "GHG Protocol Tool 1: Scope 1 Emissions (Direct)":
-        st.markdown(
-            """
-            **GHG Protocol Tool 1: Scope 1 Emissions (Direct)**
-            This section would contain inputs and calculations for direct emissions from
-            sources owned or controlled by your organization (e.g., fuel combustion in company vehicles,
-            emissions from manufacturing processes). This is critical for an NGO managing its own facilities or fleet.
-            
-            *Example inputs: Fuel type, quantity consumed, vehicle type, refrigerant leaks.*
-            """
-        )
-        st.info("Coming soon: Interactive calculator for Scope 1 emissions!")
-    elif ghg_tool_selection == "GHG Protocol Tool 2: Scope 2 Emissions (Indirect from Electricity)":
-        st.markdown(
-            """
-            **GHG Protocol Tool 2: Scope 2 Emissions (Indirect from Electricity)**
-            This section would focus on indirect emissions from the generation of purchased electricity,
-            steam, heating, and cooling consumed by your organization. Essential for an NGO to track its energy consumption impact.
-            
-            *Example inputs: Purchased electricity (kWh), location (grid emission factor for your region/country).*
-            """
-        )
-        st.info("Coming soon: Interactive calculator for Scope 2 emissions!")
-    elif ghg_tool_selection == "GHG Protocol Tool 3: Scope 3 Emissions (Value Chain) - Categories (e.g., Business Travel)":
-        st.markdown(
-            """
-            **GHG Protocol Tool 3: Scope 3 Emissions (Value Chain) - Categories**
-            This tool would cover various categories of indirect emissions that occur in the value chain
-            of the reporting company/NGO, both upstream and downstream. This could include:
-            * **Business travel:** Flights, train, car travel for staff.
-            * **Employee commuting:** Staff travel to and from work.
-            * **Waste generated in operations:** Waste sent to landfills, incineration.
-            * **Purchased goods and services:** Emissions embedded in items/services your NGO buys.
-            * **Investments:** For NGOs with endowments or significant investments.
-            
-            *Example inputs for Business Travel: Travel distance, mode of transport (air, rail, car).*
-            """
-        )
-        st.info("Coming soon: Interactive calculator for specific Scope 3 categories!")
-    elif ghg_tool_selection == "Select a tool...":
-        st.info("Please select a GHG Protocol tool from the dropdown above to see its description.")
+    st.info("Coming soon: Interactive calculator for Scope 1 emissions!")
+elif ghg_tool_selection == "GHG Protocol Tool 2: Scope 2 Emissions (Indirect from Electricity)":
+    st.markdown(
+        """
+        **GHG Protocol Tool 2: Scope 2 Emissions (Indirect from Electricity)**
+        This section would focus on indirect emissions from the generation of purchased electricity,
+        steam, heating, and cooling consumed by your organization. Essential for an NGO to track its energy consumption impact.
         
-
+        *Example inputs: Purchased electricity (kWh), location (grid emission factor for your region/country).*
+        """
+    )
+    st.info("Coming soon: Interactive calculator for Scope 2 emissions!")
+elif ghg_tool_selection == "GHG Protocol Tool 3: Scope 3 Emissions (Value Chain) - Categories (e.g., Business Travel)":
+    st.markdown(
+        """
+        **GHG Protocol Tool 3: Scope 3 Emissions (Value Chain) - Categories**
+        This tool would cover various categories of indirect emissions that occur in the value chain
+        of the reporting company/NGO, both upstream and downstream. This could include:
+        * **Business travel:** Flights, train, car travel for staff.
+        * **Employee commuting:** Staff travel to and from work.
+        * **Waste generated in operations:** Waste sent to landfills, incineration.
+        * **Purchased goods and services:** Emissions embedded in items/services your NGO buys.
+        * **Investments:** For NGOs with endowments or significant investments.
+        
+        *Example inputs for Business Travel: Travel distance, mode of transport (air, rail, car).*
+        """
+    )
+    st.info("Coming soon: Interactive calculator for specific Scope 3 categories!")
+elif ghg_tool_selection == "Select a tool...":
+    st.info("Please select a GHG Protocol tool from the dropdown above to see its description.")
+        
 st.markdown("---")
 st.markdown(
     """
