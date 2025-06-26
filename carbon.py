@@ -4,7 +4,7 @@ import pandas as pd # Import pandas for handling Excel/CSV files
 # --- Configuration ---
 # Set page configuration for better aesthetics and responsiveness
 st.set_page_config(
-    page_title="GreenImpact:Carbon & ESG Tool",
+    page_title="GreenImpact: Carbon & ESG Tool",
     page_icon="🌿",
     layout="centered",
     initial_sidebar_state="auto"
@@ -72,21 +72,25 @@ with st.expander("Estimate Your Carbon Footprint"):
     electricity_kwh = st.slider(
         "Monthly Electricity Usage (kWh)", 
         0, 1000, 150, 5, 
+        key="electricity_kwh_slider", # Added key
         help="Estimate your monthly electricity consumption in kilowatt-hours (kWh)."
     )
     car_km = st.slider(
         "Monthly Car Travel (km)", 
         0, 2000, 300, 10, 
+        key="car_km_slider", # Added key
         help="Approximate distance you travel by car each month."
     )
     flights_hours = st.slider(
         "Annual Flight Hours (total for all flights)", 
         0, 100, 5, 1, 
+        key="flights_hours_slider", # Added key
         help="Total hours spent flying in a year. Divide by 12 for monthly average if needed."
     )
     waste_kg = st.slider(
         "Monthly Waste Generated (kg)", 
         0, 100, 10, 1, 
+        key="waste_kg_slider", # Added key
         help="Estimated weight of non-recyclable waste you generate monthly."
     )
     
@@ -96,16 +100,19 @@ with st.expander("Estimate Your Carbon Footprint"):
     meat_servings_week = st.slider(
         "Weekly Meat Servings (red meat)",
         0, 20, 4, 1,
+        key="meat_servings_slider", # Added key
         help="Approximate number of red meat servings per week. Higher numbers indicate higher footprint."
     )
     clothing_items_month = st.slider(
         "Monthly New Clothing Items Purchased",
         0, 10, 1, 1,
+        key="clothing_items_slider", # Added key
         help="Number of new clothing items you typically purchase in a month."
     )
     streaming_hours_day = st.slider(
         "Daily Video Streaming Hours",
         0, 8, 2, 0.5,
+        key="streaming_hours_slider", # Added key
         help="Hours spent streaming video content daily (e.g., Netflix, YouTube). Data centers consume energy!"
     )
 
