@@ -4,7 +4,7 @@ import pandas as pd # Import pandas for handling Excel/CSV files
 # --- Configuration ---
 # Set page configuration for better aesthetics and responsiveness
 st.set_page_config(
-    page_title="GreenImpact: NGO Carbon & ESG Tool",
+    page_title="GreenImpact:Carbon & ESG Tool",
     page_icon="🌿",
     layout="centered",
     initial_sidebar_state="auto"
